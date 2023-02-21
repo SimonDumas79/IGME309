@@ -61,7 +61,19 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+	matrix4 m4Transform = glm::translate(IDENTITY_M4, vector3(0, 0, a_fHeight / 2));
+	float angle = 2 * PI / a_nSubdivisions;
+
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		AddTri(m4Transform * vector4(vector3(0.0f, 0.0f, 0.0f), 1.0f),
+			m4Transform * vector4(vector3(a_fRadius * glm::fastCos(angle * i), a_fRadius * glm::fastSin(angle * i), 0), 1.0f),
+			m4Transform * vector4(vector3(a_fRadius * glm::fastCos(angle * (i + 1)), a_fRadius * glm::fastSin(angle * (i + 1)), 0), 1.0f));
+		AddTri(m4Transform * vector4(vector3(0.0f, 0.0f, -a_fHeight), 1.0f),
+			m4Transform * vector4(vector3(a_fRadius * glm::fastCos(angle * (i + 1)), a_fRadius * glm::fastSin(angle * (i + 1)), 0), 1.0f),
+			m4Transform * vector4(vector3(a_fRadius * glm::fastCos(angle * i), a_fRadius * glm::fastSin(angle * i), 0), 1.0f));
+	}
+
 	// -------------------------------
 
 	// Adding information about color
@@ -85,7 +97,25 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
+	matrix4 m4Transform = glm::translate(IDENTITY_M4, vector3(0, 0, a_fHeight / 2));
+	float angle = 2 * PI / a_nSubdivisions;
+
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		AddTri(m4Transform * vector4(vector3(0.0f, 0.0f, 0.0f), 1.0f),
+			m4Transform * vector4(vector3(a_fRadius * glm::fastCos(angle * i), a_fRadius * glm::fastSin(angle * i), 0), 1.0f),
+				m4Transform * vector4(vector3(a_fRadius * glm::fastCos(angle * (i + 1)), a_fRadius * glm::fastSin(angle * (i + 1)), 0), 1.0f));
+		AddTri(m4Transform * vector4(vector3(0.0f, 0.0f, -a_fHeight), 1.0f),
+			m4Transform * vector4(vector3(a_fRadius * glm::fastCos(angle * (i + 1)), a_fRadius * glm::fastSin(angle * (i + 1)), -a_fHeight), 1.0f),
+				m4Transform * vector4(vector3(a_fRadius * glm::fastCos(angle * i), a_fRadius * glm::fastSin(angle * i), -a_fHeight), 1.0f));
+		AddQuad(m4Transform * vector4(vector3(a_fRadius * glm::fastCos(angle * i), a_fRadius * glm::fastSin(angle * i), 0), 1.0f),
+			m4Transform * vector4(vector3(a_fRadius * glm::fastCos(angle * i), a_fRadius * glm::fastSin(angle * i), -a_fHeight), 1.0f),
+			m4Transform * vector4(vector3(a_fRadius * glm::fastCos(angle * (i + 1)), a_fRadius * glm::fastSin(angle * (i + 1)), 0), 1.0f),
+			m4Transform * vector4(vector3(a_fRadius * glm::fastCos(angle * (i + 1)), a_fRadius * glm::fastSin(angle * (i + 1)), -a_fHeight), 1.0f));
+	}
+
+
+
 	// -------------------------------
 
 	// Adding information about color
@@ -115,7 +145,32 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
+	matrix4 m4Transform = glm::translate(IDENTITY_M4, vector3(0, 0, a_fHeight / 2));
+	float angle = 2 * PI / a_nSubdivisions;
+
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		//top
+		AddQuad(m4Transform * vector4(vector3(a_fInnerRadius * glm::fastCos(angle * i), a_fInnerRadius * glm::fastSin(angle * i), -a_fHeight), 1.0f),
+			m4Transform * vector4(vector3(a_fInnerRadius * glm::fastCos(angle * (i + 1)), a_fInnerRadius * glm::fastSin(angle * (i + 1)), -a_fHeight), 1.0f),
+			m4Transform * vector4(vector3(a_fOuterRadius * glm::fastCos(angle * i), a_fOuterRadius * glm::fastSin(angle * i), -a_fHeight), 1.0f),
+			m4Transform * vector4(vector3(a_fOuterRadius * glm::fastCos(angle * (i + 1)), a_fOuterRadius * glm::fastSin(angle * (i + 1)), -a_fHeight), 1.0f));
+		//bottom
+		AddQuad(m4Transform * vector4(vector3(a_fOuterRadius * glm::fastCos(angle * i), a_fOuterRadius * glm::fastSin(angle * i), 0), 1.0f),
+			m4Transform * vector4(vector3(a_fOuterRadius * glm::fastCos(angle * (i + 1)), a_fOuterRadius * glm::fastSin(angle * (i + 1)), 0), 1.0f),
+			m4Transform * vector4(vector3(a_fInnerRadius * glm::fastCos(angle * i), a_fInnerRadius * glm::fastSin(angle * i), 0), 1.0f),
+			m4Transform * vector4(vector3(a_fInnerRadius * glm::fastCos(angle * (i + 1)), a_fInnerRadius * glm::fastSin(angle * (i + 1)), 0), 1.0f));
+		//outertube
+		AddQuad(m4Transform * vector4(vector3(a_fOuterRadius * glm::fastCos(angle * i), a_fOuterRadius * glm::fastSin(angle * i), 0), 1.0f),
+			m4Transform * vector4(vector3(a_fOuterRadius * glm::fastCos(angle * i), a_fOuterRadius * glm::fastSin(angle * i), -a_fHeight), 1.0f),
+			m4Transform * vector4(vector3(a_fOuterRadius * glm::fastCos(angle * (i + 1)), a_fOuterRadius * glm::fastSin(angle * (i + 1)), 0), 1.0f),
+			m4Transform * vector4(vector3(a_fOuterRadius * glm::fastCos(angle * (i + 1)), a_fOuterRadius * glm::fastSin(angle * (i + 1)), -a_fHeight), 1.0f));
+		//inner tube
+		AddQuad(m4Transform * vector4(vector3(a_fInnerRadius * glm::fastCos(angle * i), a_fInnerRadius * glm::fastSin(angle * i), -a_fHeight), 1.0f),
+			m4Transform * vector4(vector3(a_fInnerRadius * glm::fastCos(angle * i), a_fInnerRadius * glm::fastSin(angle * i), 0), 1.0f), 
+			m4Transform * vector4(vector3(a_fInnerRadius * glm::fastCos(angle * (i + 1)), a_fInnerRadius * glm::fastSin(angle * (i + 1)), -a_fHeight), 1.0f),
+			m4Transform * vector4(vector3(a_fInnerRadius * glm::fastCos(angle * (i + 1)), a_fInnerRadius * glm::fastSin(angle * (i + 1)), 0), 1.0f));
+	}
 	// -------------------------------
 
 	// Adding information about color
@@ -147,9 +202,34 @@ void MyMesh::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSu
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
-	// -------------------------------
+	float angle = 2 * PI / (a_nSubdivisionsA);
+	std::vector<vector3> currentCircle;
+	float radius = a_fOuterRadius - a_fInnerRadius;
+	if (a_fInnerRadius > a_fOuterRadius)
+		radius = a_fInnerRadius - a_fOuterRadius;
+	//create the base circle
+	for (int i = 0; i < a_nSubdivisionsA + 1; i++)
+	{
+		vector3 point = vector3(radius * glm::fastCos(angle * i), radius * glm::fastSin(angle * i), 0);
+		currentCircle.push_back(point);
+	}
 
+	for (int i = 0; i < a_nSubdivisionsB; i++)
+	{
+		matrix4 rotate = glm::rotate(IDENTITY_M4, angle * i, AXIS_Y);
+		matrix4 rotateTwice = glm::rotate(IDENTITY_M4, angle * (i + 1), AXIS_Y);
+		matrix4 translate = glm::translate(IDENTITY_M4, vector3(a_fInnerRadius, 0, 0));
+		for (int j = 0; j < a_nSubdivisionsB; j++)
+		{
+			AddQuad(rotate * translate * vector4(currentCircle[j], 1.0f),
+				rotateTwice * translate * vector4(currentCircle[j], 1.0f),
+				rotate * translate * vector4(currentCircle[j + 1], 1.0f),
+				rotateTwice * translate * vector4(currentCircle[j + 1], 1.0f));
+		}
+	}
+
+	
+	// -------------------------------
 	// Adding information about color
 	CompleteMesh(a_v3Color);
 	CompileOpenGL3X();
@@ -172,9 +252,36 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	Init();
 
 	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
-	// -------------------------------
+	
+	//a_nSubdivisions is a_nSubdivisions * 2 + 2 to find the number of vertices
+	float angle = 2 * PI / (a_nSubdivisions * 2 + 2);
 
+	std::vector<vector3> currentCircle;
+	//create the base circle
+	for (int i = 0; i < (a_nSubdivisions * 2 + 2); i++)
+	{
+		vector3 point = vector3(a_fRadius * glm::fastCos(angle * i), a_fRadius * glm::fastSin(angle * i), 0);
+		currentCircle.push_back(point);
+		point = vector3(a_fRadius * glm::fastCos(angle * (i + 1)), a_fRadius * glm::fastSin(angle * (i + 1)), 0);
+		currentCircle.push_back(point);
+	}
+
+	//add quads around the circle
+	for (int i = 0; i <= (a_nSubdivisions * 4 + 2); i += 2)
+	{
+		for (int j = 0; j <= (a_nSubdivisions * 4 + 2); j += 2)
+		{
+			AddQuad(glm::rotate(vector4(currentCircle[j], 1.0f), angle * i / 2, AXIS_Y),
+				glm::rotate(vector4(currentCircle[j + 1], 1.0f), angle * i / 2, AXIS_Y), 
+				glm::rotate(vector4(currentCircle[j], 1.0f), angle * (i+2) / 2, AXIS_Y),
+				glm::rotate(vector4(currentCircle[j + 1], 1.0f), angle * (i+2) / 2, AXIS_Y));
+			
+		}
+	}
+
+	// -------------------------------
+	
+	
 	// Adding information about color
 	CompleteMesh(a_v3Color);
 	CompileOpenGL3X();
