@@ -23,7 +23,7 @@ void MyCamera::MoveForward(float a_fDistance)
 	//		 because as we are looking directly at it.
 
 	//moves the target forward towards what they are looking at
-	m_v3Position += a_fDistance * glm::normalize(m_v3Target);
+	m_v3Position += a_fDistance * glm::normalize(m_v3Target); 
 	m_v3Target -= vector3(0.0f, 0.0f, a_fDistance) * glm::normalize(m_v3Target);
 }
 void MyCamera::MoveVertical(float a_fDistance)
