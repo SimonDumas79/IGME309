@@ -1,7 +1,7 @@
 #include "MyRigidBody.h"
 using namespace BTX;
 //Allocation
-
+ 
 glm::vec2 projectShapeOntoAxis(glm::vec3* vertices, int numVertices, glm::vec3& axis) {
 	float min = glm::dot(vertices[0], axis) + glm::epsilon<float>();
 	float max = min;
