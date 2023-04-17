@@ -1,12 +1,141 @@
 #include "MyRigidBody.h"
 using namespace BTX;
 //Allocation
+
+glm::vec2 projectShapeOntoAxis(glm::vec3* vertices, int numVertices, glm::vec3& axis) {
+	float min = glm::dot(vertices[0], axis) + glm::epsilon<float>();
+	float max = min;
+	for (int i = 1; i < numVertices; i++) {
+		float projection = glm::dot(vertices[i], axis) + glm::epsilon<float>();
+		if (projection < min) {
+			min = projection;
+		}
+		else if (projection > max) {
+			max = projection;
+		}
+	}
+	return glm::vec2(min, max);
+}
+
+glm::vec2 projectShapeOntoXAxis(glm::vec3* shape, int numVertices) {
+	return projectShapeOntoAxis(shape, numVertices, glm::vec3(1.0f, 0.0f, 0.0f));
+}
+
+glm::vec2 projectShapeOntoYAxis(glm::vec3* shape, int numVertices) {
+	return projectShapeOntoAxis(shape, numVertices, glm::vec3(0.0f, 1.0f, 0.0f));
+}
+
+glm::vec2 projectShapeOntoZAxis(glm::vec3* shape, int numVertices) {
+	return projectShapeOntoAxis(shape, numVertices, glm::vec3(0.0f, 0.0f, 1.0f));
+}
+
 uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 {
 	//TODO: Calculate the SAT algorithm I STRONGLY suggest you use the
 	//Real Time Collision detection algorithm for OBB here but feel free to
 	//implement your own solution.
-	return BTXs::eSATResults::SAT_NONE;
+
+	vector3 v3Corner[8];
+	//Back square
+	v3Corner[0] = m_v3MinG;
+	v3Corner[1] = vector3(m_v3MaxG.x, m_v3MinG.y, m_v3MinG.z);
+	v3Corner[2] = vector3(m_v3MinG.x, m_v3MaxG.y, m_v3MinG.z);
+	v3Corner[3] = vector3(m_v3MaxG.x, m_v3MaxG.y, m_v3MinG.z);
+
+	//Front square
+	v3Corner[4] = vector3(m_v3MinG.x, m_v3MinG.y, m_v3MaxG.z);
+	v3Corner[5] = vector3(m_v3MaxG.x, m_v3MinG.y, m_v3MaxG.z);
+	v3Corner[6] = vector3(m_v3MinG.x, m_v3MaxG.y, m_v3MaxG.z);
+	v3Corner[7] = m_v3MaxG;
+
+	vector3 v3CornerOther[8];
+	//Back square
+	v3CornerOther[0] = a_pOther->m_v3MinG;
+	v3CornerOther[1] = vector3(a_pOther->m_v3MaxG.x, a_pOther->m_v3MinG.y, a_pOther->m_v3MinG.z);
+	v3CornerOther[2] = vector3(a_pOther->m_v3MinG.x, a_pOther->m_v3MaxG.y, a_pOther->m_v3MinG.z);
+	v3CornerOther[3] = vector3(a_pOther->m_v3MaxG.x, a_pOther->m_v3MaxG.y, a_pOther->m_v3MinG.z);
+
+	//Front square
+	v3CornerOther[4] = vector3(a_pOther->m_v3MinG.x, a_pOther->m_v3MinG.y, a_pOther->m_v3MaxG.z);
+	v3CornerOther[5] = vector3(a_pOther->m_v3MaxG.x, a_pOther->m_v3MinG.y, a_pOther->m_v3MaxG.z);
+	v3CornerOther[6] = vector3(a_pOther->m_v3MinG.x, a_pOther->m_v3MaxG.y, a_pOther->m_v3MaxG.z);
+	v3CornerOther[7] = a_pOther->m_v3MaxG;
+	/*
+	vector3 edges[12];
+	edges[0] = v3Corner[0] - v3Corner[4];
+	edges[1] = v3Corner[0] - v3Corner[2];
+	edges[2] = v3Corner[0] - v3Corner[1];
+	edges[3] = v3Corner[4] - v3Corner[6];
+	edges[4] = v3Corner[4] - v3Corner[5];
+	edges[5] = v3Corner[2] - v3Corner[6];
+	edges[6] = v3Corner[2] - v3Corner[3];
+	edges[7] = v3Corner[6] - v3Corner[7];
+	edges[8] = v3Corner[1] - v3Corner[5];
+	edges[9] = v3Corner[1] - v3Corner[3];
+	edges[10] = v3Corner[5] - v3Corner[7];
+	edges[11] = v3Corner[3] - v3Corner[7];
+
+	
+	vector3 otherEdges[12];
+	otherEdges[0] = v3Corner[0] - v3Corner[1];
+	otherEdges[1] = v3Corner[1] - v3Corner[3];
+	otherEdges[2] = v3Corner[3] - v3Corner[2];
+	otherEdges[3] = v3Corner[2] - v3Corner[0];
+	otherEdges[4] = v3Corner[4] - v3Corner[5];
+	otherEdges[3] = v3Corner[5] - v3Corner[7];
+	otherEdges[4] = v3Corner[7] - v3Corner[5];
+	otherEdges[5] = v3Corner[6] - v3Corner[6];
+	otherEdges[6] = v3Corner[2] - v3Corner[3];
+	otherEdges[7] = v3Corner[6] - v3Corner[7];
+	otherEdges[10] = v3Corner[5] - v3Corner[7];
+	otherEdges[11] = v3Corner[3] - v3Corner[7];
+	*/
+
+	//find the up right and forward of the shape 1
+	vector3 shape1Up = glm::normalize((v3Corner[2] + v3Corner[7]) / 2 - GetCenterGlobal());
+	vector3 shape1Right = glm::normalize((v3Corner[1] + v3Corner[7]) / 2 - GetCenterGlobal());
+	vector3 shape1Forward = glm::normalize((v3Corner[4] + v3Corner[7]) / 2 - GetCenterGlobal());
+
+
+	//find the up right and forward of the shape 2
+	vector3 shape2Up = glm::normalize((v3CornerOther[2] + v3CornerOther[7]) / 2 - a_pOther->GetCenterGlobal());
+	vector3 shape2Right = glm::normalize((v3CornerOther[1] + v3CornerOther[7]) / 2 - a_pOther->GetCenterGlobal());
+	vector3 shape2Forward = glm::normalize((v3CornerOther[4] + v3CornerOther[7]) / 2 - a_pOther->GetCenterGlobal());
+	
+	
+	//check for overlap on each axis
+	if (projectShapeOntoAxis(v3Corner, 8, shape1Up).x > projectShapeOntoAxis(v3CornerOther, 8, shape1Up).y
+		|| projectShapeOntoAxis(v3Corner, 8, shape1Up).y < projectShapeOntoAxis(v3CornerOther, 8, shape1Up).x)
+	{
+		return 1;
+	}
+	if (projectShapeOntoAxis(v3Corner, 8, shape1Forward).x > projectShapeOntoAxis(v3CornerOther, 8, shape1Forward).y
+		|| projectShapeOntoAxis(v3Corner, 8, shape1Forward).y < projectShapeOntoAxis(v3CornerOther, 8, shape1Forward).x)
+	{
+		return 1;
+	}
+	if (projectShapeOntoAxis(v3Corner, 8, shape1Right).x > projectShapeOntoAxis(v3CornerOther, 8, shape1Right).y
+		|| projectShapeOntoAxis(v3Corner, 8, shape1Right).y < projectShapeOntoAxis(v3CornerOther, 8, shape1Right).x)
+	{
+		return 1;
+	}
+	//check for overlap on the axis of the second shape
+	if (projectShapeOntoAxis(v3Corner, 8, shape2Up).x > projectShapeOntoAxis(v3CornerOther, 8, shape2Up).y
+		|| projectShapeOntoAxis(v3Corner, 8, shape2Up).y < projectShapeOntoAxis(v3CornerOther, 8, shape2Up).x)
+	{
+		return 1;
+	}
+	if (projectShapeOntoAxis(v3Corner, 8, shape2Forward).x > projectShapeOntoAxis(v3CornerOther, 8, shape2Forward).y
+		|| projectShapeOntoAxis(v3Corner, 8, shape2Forward).y < projectShapeOntoAxis(v3CornerOther, 8, shape2Forward).x)
+	{
+		return 1;
+	}
+	if (projectShapeOntoAxis(v3Corner, 8, shape2Right).x > projectShapeOntoAxis(v3CornerOther, 8, shape2Right).y
+		|| projectShapeOntoAxis(v3Corner, 8, shape2Right).y < projectShapeOntoAxis(v3CornerOther, 8, shape2Right).x)
+	{
+		return 1;
+	}
+	return 0;
 }
 bool MyRigidBody::IsColliding(MyRigidBody* const a_pOther)
 {
@@ -21,7 +150,7 @@ bool MyRigidBody::IsColliding(MyRigidBody* const a_pOther)
 	{
 		uint nResult = SAT(a_pOther);
 
-		if (bColliding) //The SAT shown they are colliding
+		if (nResult == 0) //The SAT shown they are colliding
 		{
 			this->AddCollisionWith(a_pOther);
 			a_pOther->AddCollisionWith(this);
