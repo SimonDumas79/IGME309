@@ -16,19 +16,6 @@ glm::vec2 projectShapeOntoAxis(glm::vec3* vertices, int numVertices, glm::vec3& 
 	}
 	return glm::vec2(min, max);
 }
-
-glm::vec2 projectShapeOntoXAxis(glm::vec3* shape, int numVertices) {
-	return projectShapeOntoAxis(shape, numVertices, glm::vec3(1.0f, 0.0f, 0.0f));
-}
-
-glm::vec2 projectShapeOntoYAxis(glm::vec3* shape, int numVertices) {
-	return projectShapeOntoAxis(shape, numVertices, glm::vec3(0.0f, 1.0f, 0.0f));
-}
-
-glm::vec2 projectShapeOntoZAxis(glm::vec3* shape, int numVertices) {
-	return projectShapeOntoAxis(shape, numVertices, glm::vec3(0.0f, 0.0f, 1.0f));
-}
-
 uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 {
 	//TODO: Calculate the SAT algorithm I STRONGLY suggest you use the
