@@ -75,7 +75,6 @@ bool Octant::CheckCollision(vector3 min1, vector3 max1, vector3 min2, vector3 ma
 }
 bool Octant::IsColliding(uint a_uRBIndex)
 {
-	//Get how many objects there are in the world
 	uint nObjects = m_pEntityMngr->GetEntityCount();
 	//If the index given is larger than the number of elements in the bounding object there is no collision
 	if (nObjects < a_uRBIndex)
@@ -83,20 +82,23 @@ bool Octant::IsColliding(uint a_uRBIndex)
 		return false;
 	}
 
-	RigidBody* entity = m_pEntityMngr->GetEntity(a_uRBIndex)->GetRigidBody();
-
+	//Get how many objects there are in the world
+	if (m_pParent != nullptr)
+	{
+		nObjects = m_pParent->m_EntityList.size();
+	}
 	for (uint i = 0; i < m_EntityList.size(); i++)
 	{
 		Entity* current = m_pEntityMngr->GetEntity(i);
 		RigidBody* rigidBody = current->GetRigidBody();
 
-		if (CheckCollision(entity->GetMinGlobal(), entity->GetMaxGlobal(),
+		if (CheckCollision(m_v3Min, m_v3Max,
 			rigidBody->GetMinGlobal(), rigidBody->GetMaxGlobal()))
 		{
+			m_EntityList.push_back(i);
 			return true;
 		}
 	}
-	SafeDelete(entity);
 	return false; // for the sake of startup code
 }
 void Octant::Display(uint a_nIndex, vector3 a_v3Color)
