@@ -38,6 +38,7 @@ class Octant
 	Octant* m_pRoot = nullptr;//Root octant
 	std::vector<Octant*> m_lChild; //list of nodes that contain objects (this will be applied to root only)
 	
+	
 public:
 	/*
 	USAGE: Constructor for root only, will create an octant containing all Entities in the manager
@@ -241,6 +242,13 @@ private:
 	OUTPUT: ---
 	*/
 	void ConstructList(void);
+
+	/*
+	USAGE: Checks for collision between two objects using AABB collision
+	ARGUMENTS: min1/min2 are the min values for each object. max1/max2 are the max values for each object
+	OUTPUT: true if colliding, false if not
+	*/
+	bool CheckCollision(vector3 min1, vector3 max1, vector3 min2, vector3 max2);
 };//class
 
 } //namespace BTX
